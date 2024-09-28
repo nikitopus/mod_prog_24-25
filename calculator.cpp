@@ -1,37 +1,81 @@
 #include "calculator.h"
-#include "ui_calculator.h"
+#include <QPushButton>
+#include <QLineEdit>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 Calculator::Calculator(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::Calculator),
     currentResult(0.0),
     isNewOperation(true)
 {
-    ui->setupUi(this);
+    // Создаем поле для вывода результата
+    resultField = new QLineEdit;
+    resultField->setAlignment(Qt::AlignRight);  // Выравниваем текст по правому краю
+    resultField->setReadOnly(true);  // Поле только для чтения
 
-    // Подключаем кнопки к слотам
-    connect(ui->button0, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button1, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button2, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button3, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button4, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button5, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button6, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button7, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button8, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
-    connect(ui->button9, &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
+    // Создаем кнопки чисел
+    for (int i = 0; i < 10; ++i) {
+        numberButtons[i] = new QPushButton(QString::number(i));
+        connect(numberButtons[i], &QPushButton::clicked, this, &Calculator::onNumberButtonClicked);
+    }
 
-    connect(ui->buttonAdd, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
-    connect(ui->buttonSubtract, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
-    connect(ui->buttonMultiply, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
-    connect(ui->buttonDivide, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
-    connect(ui->buttonEqual, &QPushButton::clicked, this, &Calculator::onEqualButtonClicked);
-    connect(ui->buttonClear, &QPushButton::clicked, this, &Calculator::onClearButtonClicked);
+    // Создаем кнопки операций
+    buttonAdd = new QPushButton("+");
+    buttonSubtract = new QPushButton("-");
+    buttonMultiply = new QPushButton("*");
+    buttonDivide = new QPushButton("/");
+    buttonEqual = new QPushButton("=");
+    buttonClear = new QPushButton("C");
+
+    // Подключаем кнопки операций к слотам
+    connect(buttonAdd, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
+    connect(buttonSubtract, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
+    connect(buttonMultiply, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
+    connect(buttonDivide, &QPushButton::clicked, this, &Calculator::onOperationButtonClicked);
+    connect(buttonEqual, &QPushButton::clicked, this, &Calculator::onEqualButtonClicked);
+    connect(buttonClear, &QPushButton::clicked, this, &Calculator::onClearButtonClicked);
+
+    // Макет для кнопок чисел
+    QGridLayout *gridLayout = new QGridLayout;
+    gridLayout->addWidget(numberButtons[1], 0, 0);
+    gridLayout->addWidget(numberButtons[2], 0, 1);
+    gridLayout->addWidget(numberButtons[3], 0, 2);
+    gridLayout->addWidget(buttonAdd, 0, 3);
+
+    gridLayout->addWidget(numberButtons[4], 1, 0);
+    gridLayout->addWidget(numberButtons[5], 1, 1);
+    gridLayout->addWidget(numberButtons[6], 1, 2);
+    gridLayout->addWidget(buttonSubtract, 1, 3);
+
+    gridLayout->addWidget(numberButtons[7], 2, 0);
+    gridLayout->addWidget(numberButtons[8], 2, 1);
+    gridLayout->addWidget(numberButtons[9], 2, 2);
+    gridLayout->addWidget(buttonMultiply, 2, 3);
+
+    gridLayout->addWidget(buttonClear, 3, 0);
+    gridLayout->addWidget(numberButtons[0], 3, 1);
+    gridLayout->addWidget(buttonEqual, 3, 2);
+    gridLayout->addWidget(buttonDivide, 3, 3);
+
+    // Основной макет
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(resultField);
+    mainLayout->addLayout(gridLayout);
+
+    // Устанавливаем макет в центральный виджет окна
+    QWidget *centralWidget = new QWidget(this);
+    centralWidget->setLayout(mainLayout);
+    setCentralWidget(centralWidget);
+
+    setWindowTitle("Калькулятор");
+    resize(300, 400);
 }
 
 Calculator::~Calculator()
 {
-    delete ui;
+    // Здесь тоже не нужно ничего удалять вручную
 }
 
 void Calculator::onNumberButtonClicked()
@@ -40,10 +84,10 @@ void Calculator::onNumberButtonClicked()
     if (button) {
         QString buttonText = button->text();
         if (isNewOperation) {
-            ui->resultField->setText(buttonText);
+            resultField->setText(buttonText);
             isNewOperation = false;
         } else {
-            ui->resultField->setText(ui->resultField->text() + buttonText);
+            resultField->setText(resultField->text() + buttonText);
         }
     }
 }
@@ -52,7 +96,7 @@ void Calculator::onOperationButtonClicked()
 {
     QPushButton *button = qobject_cast<QPushButton *>(sender());
     if (button) {
-        currentResult = ui->resultField->text().toDouble();
+        currentResult = resultField->text().toDouble();
         currentOperation = button->text();
         isNewOperation = true;
     }
@@ -60,7 +104,7 @@ void Calculator::onOperationButtonClicked()
 
 void Calculator::onEqualButtonClicked()
 {
-    double operand = ui->resultField->text().toDouble();
+    double operand = resultField->text().toDouble();
     if (currentOperation == "+") {
         currentResult += operand;
     } else if (currentOperation == "-") {
@@ -71,12 +115,12 @@ void Calculator::onEqualButtonClicked()
         if (operand != 0) {
             currentResult /= operand;
         } else {
-            ui->resultField->setText("Ошибка!");
+            resultField->setText("Ошибка!");
             return;
         }
     }
 
-    ui->resultField->setText(QString::number(currentResult));
+    resultField->setText(QString::number(currentResult));
     currentOperation.clear();
     isNewOperation = true;
 }
@@ -86,5 +130,5 @@ void Calculator::onClearButtonClicked()
     currentResult = 0.0;
     currentOperation.clear();
     isNewOperation = true;
-    ui->resultField->clear();
+    resultField->clear();
 }

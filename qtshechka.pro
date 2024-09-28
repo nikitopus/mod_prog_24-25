@@ -17,9 +17,7 @@ HEADERS += \
     calculator.h \
     login.h
 
-FORMS += \
-    calculator.ui \
-    login.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -3,9 +3,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-class Login;
-}
+class QLineEdit;
+class QLabel;
+class QPushButton;
 
 class Login : public QDialog
 {
@@ -16,10 +16,13 @@ public:
     ~Login();
 
 private slots:
-    void onLoginClicked();
+    void onLoginClicked();  // Слот для обработки нажатия кнопки
 
 private:
-    Ui::Login *ui;
+    QLineEdit *usernameField;
+    QLineEdit *passwordField;
+    QLabel *errorLabel;
+    QPushButton *loginButton;
 };
 
 #endif // LOGIN_H

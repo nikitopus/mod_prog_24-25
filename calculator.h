@@ -3,9 +3,8 @@
 
 #include <QMainWindow>
 
-namespace Ui {
-class Calculator;
-}
+class QPushButton;
+class QLineEdit;
 
 class Calculator : public QMainWindow
 {
@@ -22,10 +21,18 @@ private slots:
     void onClearButtonClicked();        // Слот для кнопки очистки
 
 private:
-    Ui::Calculator *ui;
-    double currentResult;       // Переменная для хранения текущего результата
-    QString currentOperation;   // Переменная для хранения текущей операции
-    bool isNewOperation;        // Переменная для управления состоянием ввода
+    QLineEdit *resultField;       // Поле вывода результата
+    QPushButton *numberButtons[10];   // Кнопки цифр
+    QPushButton *buttonAdd;
+    QPushButton *buttonSubtract;
+    QPushButton *buttonMultiply;
+    QPushButton *buttonDivide;
+    QPushButton *buttonEqual;
+    QPushButton *buttonClear;
+
+    double currentResult;        // Текущий результат
+    QString currentOperation;    // Текущая операция
+    bool isNewOperation;         // Состояние ввода
 };
 
 #endif // CALCULATOR_H
